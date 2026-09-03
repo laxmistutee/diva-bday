@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Diva! 🎂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #d4a574 0%, #c9975b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .card-container {
+            perspective: 2000px;
+            position: relative;
+        }
+
+        /* Cover Page */
+        .cover {
+            width: 400px;
+            height: 550px;
+            cursor: pointer;
+            transition: transform 0.8s ease;
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+
+        .cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .cover.hidden {
+            display: none;
+        }
+
+        /* Card Spread (when open) */
+        .card-spread {
+            display: none;
+            position: relative;
+            width: 800px;
+            height: 550px;
+        }
+
+        .card-spread.open {
+            display: flex;
+        }
+
+        .page {
+            width: 400px;
+            height: 550px;
+            background: #f5e6d3;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .page-left {
+            border-radius: 8px 0 0 8px;
+            border-right: 2px solid #d4a574;
+        }
+
+        .page-right {
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Letter Page (Left) */
+        .envelope-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .envelope {
+            position: absolute;
+            width: 85%;
+            height: auto;
+            z-index: 2;
+        }
+
+        .envelope img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .letter {
+            position: absolute;
+            width: 75%;
+            height: auto;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            z-index: 1;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .letter img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+        }
+
+        .letter.pulled-out {
+            z-index: 5;
+            transform: translate(-50%, -50%) scale(1.15);
+            top: 50%;
+        }
+
+        /* Candles Page (Right) */
+        .cake-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .cake-wrapper {
+            position: relative;
+            width: 90%;
+            height: auto;
+        }
+
+        .cake-base {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .flame {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            transition: all 0.3s ease;
+            transform-origin: bottom center;
+        }
+
+        .flame.blown-out {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .flame.blowing {
+            animation: flicker 0.1s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { transform: skewX(-15deg) skewY(5deg); }
+            50% { transform: skewX(-20deg) skewY(8deg); }
+        }
+
+        /* Mic Controls */
+        .mic-controls {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .level-meter {
+            width: 200px;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 10px auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .level-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .blow-button {
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .blow-button:active {
+            transform: scale(0.95);
+        }
+
+        .mic-status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Wish Message */
+        .wish-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+            z-index: 10;
+        }
+
+        .wish-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .wish-message h2 {
+            font-size: 32px;
+            color: #ff6b9d;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .relight-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .relight-btn:hover {
+            background: #45a049;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b9d;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(600px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 2px solid #d4a574;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .back-button:hover {
+            background: #f5e6d3;
+        }
+
+        /* Responsive */
+        @media (max-width: 850px) {
+            .card-spread {
+                width: 90vw;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .page {
+                width: 100%;
+                height: 400px;
+            }
+
+            .page-left {
+                border-radius: 8px 8px 0 0;
+                border-right: none;
+                border-bottom: 2px solid #d4a574;
+            }
+
+            .page-right {
+                border-radius: 0 0 8px 8px;
+            }
+
+            .cover {
+                width: 90vw;
+                max-width: 400px;
+                height: auto;
+            }
+
+            .back-button {
+                top: -45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <!-- Cover Page -->
+        <div class="cover" id="cover">
+            <img src="cover.jpg" alt="Birthday Card Cover">
+        </div>
+
+        <!-- Card Spread (Inside) -->
+        <div class="card-spread" id="cardSpread">
+            <button class="back-button" id="backButton">← Back to Cover</button>
+
+            <!-- Page 2: Letter (Left) -->
+            <div class="page page-left">
+                <div class="envelope-container">
+                    <div class="letter" id="letter">
+                        <img src="letter.jpg" alt="Birthday Letter">
+                    </div>
+                    <div class="envelope">
+                        <img src="envelope.png" alt="Envelope">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: Cake with Candles (Right) -->
+            <div class="page page-right">
+                <div class="cake-container">
+                    <div class="cake-wrapper" id="cakeWrapper">
+                        <img src="cake.jpg" alt="Birthday Cake" class="cake-base" id="cakeBase">
+                        <!-- Flames will be positioned dynamically -->
+                    </div>
+                    
+                    <div class="mic-controls">
+                        <div class="level-meter">
+                            <div class="level-bar" id="levelBar"></div>
+                        </div>
+                        <button class="blow-button" id="blowButton">Hold to Blow 💨</button>
+                        <div class="mic-status" id="micStatus">Mic ready (or use button)</div>
+                    </div>
+
+                    <div class="wish-message" id="wishMessage">
+                        <h2>Make a wish, Diva! ✨</h2>
+                        <button class="relight-btn" id="relightBtn">Relight Candles 🔥</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const cover = document.getElementById('cover');
+        const cardSpread = document.getElementById('cardSpread');
+        const backButton = document.getElementById('backButton');
+        const letter = document.getElementById('letter');
+        const cakeWrapper = document.getElementById('cakeWrapper');
+        const cakeBase = document.getElementById('cakeBase');
+        const levelBar = document.getElementById('levelBar');
+        const blowButton = document.getElementById('blowButton');
+        const micStatus = document.getElementById('micStatus');
+        const wishMessage = document.getElementById('wishMessage');
+        const relightBtn = document.getElementById('relightBtn');
+
+        let letterPulled = false;
+        let flames = [];
+        let audioContext;
+        let analyser;
+        let microphone;
+        let dataArray;
+        let isBlowing = false;
+        let blowTimeout;
+        let candlesOut = false;
+
+        // Flame positions (adjust these based on your cake image)
+        const flamePositions = [
+            { left: '25%', top: '15%' },
+            { left: '48%', top: '8%' },
+            { left: '70%', top: '15%' }
+        ];
+
+        // Open card
+        cover.addEventListener('click', () => {
+            cover.classList.add('hidden');
+            cardSpread.classList.add('open');
+            if (flames.length === 0) {
+                initCandles();
+            }
+        });
+
+        // Back to cover
+        backButton.addEventListener('click', () => {
+            cardSpread.classList.remove('open');
+            cover.classList.remove('hidden');
+        });
+
+        // Toggle letter
+        letter.addEventListener('click', () => {
+            letterPulled = !letterPulled;
+            letter.classList.toggle('pulled-out', letterPulled);
+        });
+
+        // Initialize candles
+        function initCandles() {
+            // Load the cake image first to get dimensions
+            cakeBase.onload = () => {
+                createFlames();
+            };
+            
+            // If already loaded
+            if (cakeBase.complete) {
+                createFlames();
+            }
+        }
+
+        function createFlames() {
+            flamePositions.forEach((pos, index) => {
+                const flame = document.createElement('img');
+                flame.src = 'candles.png'; // Your candles image with flames
+                flame.className = 'flame';
+                flame.style.left = pos.left;
+                flame.style.top = pos.top;
+                flame.style.transform = 'translateX(-50%)';
+                cakeWrapper.appendChild(flame);
+                flames.push(flame);
+            });
+        }
+
+        // Microphone setup
+        async function initMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                micStatus.textContent = '🎤 Mic active - Blow to extinguish!';
+                detectBlow();
+            } catch (err) {
+                console.error('Microphone access denied:', err);
+                micStatus.textContent = '❌ Mic blocked - Use button below';
+            }
+        }
+
+        // Detect blowing
+        function detectBlow() {
+            if (!analyser || candlesOut) return;
+
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            
+            // Update level meter
+            levelBar.style.width = Math.min(average * 2, 100) + '%';
+
+            // Detect blow (threshold)
+            if (average > 30) {
+                handleBlowing();
+            } else {
+                stopBlowing();
+            }
+
+            requestAnimationFrame(detectBlow);
+        }
+
+        // Handle blowing
+        function handleBlowing() {
+            if (candlesOut) return;
+
+            flames.forEach(flame => {
+                flame.classList.add('blowing');
+            });
+
+            if (!isBlowing) {
+                isBlowing = true;
+                blowTimeout = setTimeout(() => {
+                    blowOutCandles();
+                }, 500);
+            }
+        }
+
+        function stopBlowing() {
+            if (isBlowing) {
+                clearTimeout(blowTimeout);
+                isBlowing = false;
+                flames.forEach(flame => {
+                    flame.classList.remove('blowing');
+                });
+            }
+        }
+
+        // Blow out candles
+        function blowOutCandles() {
+            if (candlesOut) return;
+            candlesOut = true;
+
+            flames.forEach((flame, index) => {
+                setTimeout(() => {
+                    flame.classList.add('blown-out');
+                }, index * 100);
+            });
+
+            setTimeout(() => {
+                showWishMessage();
+                createConfetti();
+            }, 800);
+        }
+
+        // Show wish message
+        function showWishMessage() {
+            wishMessage.classList.add('show');
+        }
+
+        // Confetti
+        function createConfetti() {
+            const colors = ['#ff6b9d', '#4CAF50', '#FFC107', '#FF5722', '#9C27B0', '#00BCD4'];
+            const cakeContainer = document.querySelector('.cake-container');
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    cakeContainer.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        // Relight candles
+        relightBtn.addEventListener('click', () => {
+            candlesOut = false;
+            isBlowing = false;
+            wishMessage.classList.remove('show');
+            flames.forEach(flame => {
+                flame.classList.remove('blown-out', 'blowing');
+            });
+            levelBar.style.width = '0%';
+        });
+
+        // Manual blow button
+        let manualBlowInterval;
+        
+        blowButton.addEventListener('mousedown', startManualBlow);
+        blowButton.addEventListener('mouseup', stopManualBlow);
+        blowButton.addEventListener('mouseleave', stopManualBlow);
+        blowButton.addEventListener('touchstart', startManualBlow);
+        blowButton.addEventListener('touchend', stopManualBlow);
+
+        // Spacebar support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !manualBlowInterval) {
+                e.preventDefault();
+                startManualBlow();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                stopManualBlow();
+            }
+        });
+
+        function startManualBlow() {
+            if (candlesOut) return;
+            let level = 0;
+            manualBlowInterval = setInterval(() => {
+                level = Math.min(level + 10, 100);
+                levelBar.style.width = level + '%';
+            }, 50);
+            handleBlowing();
+        }
+
+        function stopManualBlow() {
+            if (manualBlowInterval) {
+                clearInterval(manualBlowInterval);
+                manualBlowInterval = null;
+                levelBar.style.width = '0%';
+                stopBlowing();
+            }
+        }
+
+        // Initialize microphone on user interaction
+        document.addEventListener('click', () => {
+            if (!audioContext) {
+                initMicrophone();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
